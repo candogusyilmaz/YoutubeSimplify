@@ -21,7 +21,8 @@ namespace YouTubeSimplify
         #region Private Fields
 
         private IEnumerable<YouTubeVideo> videoInfos;
-        private VideoDownloader videoDownloader;
+        private WebClient _webClient;
+        private string savePath;
 
         #endregion
 
@@ -30,9 +31,18 @@ namespace YouTubeSimplify
         public MainForm()
         {
             InitializeComponent();
+
+            _webClient = new WebClient();
+            _webClient.UseDefaultCredentials = true;
+            _webClient.DownloadProgressChanged += DownloadProgressChanged;
+
             this.Icon = Properties.Resources.mainIcon;
             ClearControls();
+        }
 
+        private void DownloadProgressChanged3(object sender, DownloadProgressChangedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -171,15 +181,16 @@ namespace YouTubeSimplify
 
         private void lblCancel_Click(object sender, EventArgs e)
         {
-            var dResult = MessageBox.Show($"{videoDownloader.FullName} indirmesi iptal edilsin mi?", "İndirme İptal", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (!_webClient.IsBusy) return;
+
+            var dResult = MessageBox.Show($"{videoInfos.FirstOrDefault().FullName} indirmesi iptal edilsin mi?", "İndirme İptal", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
             if (dResult == DialogResult.Yes)
             {
-                // Cancel the download
-                videoDownloader.CancelAsync();
+                _webClient.CancelAsync();
 
-                // Delete the half-downloaded file
-                if (File.Exists(videoDownloader.FullPath))
-                    File.Delete(videoDownloader.FullPath);
+                if (File.Exists(savePath))
+                    File.Delete(savePath);
 
                 ClearControls();
             }
@@ -191,14 +202,13 @@ namespace YouTubeSimplify
         {
             try
             {
-                videoDownloader = new VideoDownloader(video.FullName);
-                videoDownloader.ProgressChanged += DownloadProgressChanged;
+                string nameWithExtension = video.FullName.RemoveInvalidChars();
+                savePath = Path.Combine(path, nameWithExtension);
+                await _webClient.DownloadFileTaskAsync(video.Uri, savePath);
 
-                await videoDownloader.Download(video.Uri, path);
+                //Notify.FileDownloaded(video.FullName);
 
-                Notify.FileDownloaded(video.FullName);
-
-                return new FileInfo(videoDownloader.FullPath);
+                return new FileInfo(savePath);
             }
             catch (WebException exception)
             {
