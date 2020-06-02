@@ -44,7 +44,10 @@ namespace MetadataChanger.Forms
 
         private async void txtKeyword_TextChanged(object sender, EventArgs e)
         {
-            if (txtKeyword.Text.Length < 3)
+            string flagWord = txtKeyword.Text.Trim();
+
+            // Return if; length is lower than 3 or length isn't divisible by 2
+            if (flagWord.Length < 3 || flagWord.Replace(" ","").Length % 2 != 1)
                 return;
 
             lblSongName.ResetText();

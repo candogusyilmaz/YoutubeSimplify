@@ -54,7 +54,7 @@ namespace YouTubeSimplify
             txtSaveFolder.Text = Settings.Default.FolderPath;
 
             ClipboardMonitor.Instance.ClipboardChanged += ClipboardChanged;
-            Notifier.Instance.Click += Notifier_Click;
+            //Notifier.Instance.Click += Notifier_Click;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

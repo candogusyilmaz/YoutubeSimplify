@@ -40,6 +40,9 @@
     <StartupObject>YouTubeSimplify.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="libvideo">
+      <HintPath>..\..\..\Users\Egology\Downloads\libvideo-master\src\libvideo\bin\Debug\netstandard1.1\libvideo.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -123,10 +126,6 @@
     <ProjectReference Include="..\FFMpegManager\FFMpegManager.csproj">
       <Project>{2bc29912-d286-4cbc-995e-c9851c46d484}</Project>
       <Name>FFMpegManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\libvideo\libvideo.csproj">
-      <Project>{331681ad-6f07-47bc-a1ba-851ac28d2dd7}</Project>
-      <Name>libvideo</Name>
     </ProjectReference>
     <ProjectReference Include="..\MetadataChanger\MetadataChanger.csproj">
       <Project>{729109ec-eb2e-494f-a660-ddb60679c565}</Project>
