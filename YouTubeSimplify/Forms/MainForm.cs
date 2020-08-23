@@ -21,7 +21,7 @@ namespace YouTubeSimplify
         #region Private Fields
 
         private IEnumerable<YouTubeVideo> videoInfos;
-        private WebClient _webClient;
+        private readonly WebClient _webClient;
         private string savePath;
 
         #endregion
@@ -32,17 +32,14 @@ namespace YouTubeSimplify
         {
             InitializeComponent();
 
-            _webClient = new WebClient();
-            _webClient.UseDefaultCredentials = true;
+            _webClient = new WebClient
+            {
+                UseDefaultCredentials = true
+            };
             _webClient.DownloadProgressChanged += DownloadProgressChanged;
 
             this.Icon = Properties.Resources.mainIcon;
             ClearControls();
-        }
-
-        private void DownloadProgressChanged3(object sender, DownloadProgressChangedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion
@@ -167,16 +164,21 @@ namespace YouTubeSimplify
             var video = videoInfos.SelectVideo(cmbType.Text, cmbResolution.Text, cmbAudioBitrate.Text);
             var downloadedFileInfo = await DownloadVideo(video, txtSaveFolder.Text);
 
-            if (downloadedFileInfo == null) return;
+            if (downloadedFileInfo == null)
+            {
+                ClearControls();
+                return;
+            }
 
             var mp3File = await ConsiderConvertingToMp3(cmbType.Text, downloadedFileInfo);
+
+            if (Settings.Default.ChangeAlbumInfoAfterDownload && mp3File != null)
+                using (var form = new SearchForm(mp3File.FullName, Resources.mainIcon))
+                    form.ShowDialog();
+
             Notify.FileConverted(video.Title);
 
             ClearControls();
-
-            if (Settings.Default.ChangeAlbumInfoAfterDownload)
-                using (var form = new SearchForm(mp3File.FullName, Resources.mainIcon))
-                    form.ShowDialog();
         }
 
         private void lblCancel_Click(object sender, EventArgs e)
@@ -204,6 +206,10 @@ namespace YouTubeSimplify
             {
                 string nameWithExtension = video.FullName.RemoveInvalidChars();
                 savePath = Path.Combine(path, nameWithExtension);
+
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
                 await _webClient.DownloadFileTaskAsync(video.Uri, savePath);
 
                 //Notify.FileDownloaded(video.FullName);
@@ -231,7 +237,7 @@ namespace YouTubeSimplify
         private async Task<FileInfo> ConsiderConvertingToMp3(string fileExtension, FileInfo file)
         {
             // If file extension isn't mp3 and there isn't an mp4 file return null
-            if (fileExtension != ".mp3" && file != null)
+            if (fileExtension != ".mp3")
                 return null;
 
             string fileNameAsMp3 = file.FullName.Replace(".mp4", ".mp3");
@@ -265,6 +271,7 @@ namespace YouTubeSimplify
             // Delete the .mp4 file
             file.Delete();
 
+            ffmpeg.Dispose();
             return new FileInfo(fileNameAsMp3);
         }
 
@@ -390,7 +397,7 @@ namespace YouTubeSimplify
             }
 
             int totalCount = downloadQueue.Count;
-            
+
             while (downloadQueue.Count > 0)
             {
                 DisableControls();
@@ -407,7 +414,7 @@ namespace YouTubeSimplify
         {
             var videoInfo = await model.URL.GetVideoInfo();
             PopulateVideoTypes(videoInfo.GetVideoTypes());
-            
+
             txtYouTubeURL.Text = model.URL;
             this.Text = videoInfo.First().Title;
 

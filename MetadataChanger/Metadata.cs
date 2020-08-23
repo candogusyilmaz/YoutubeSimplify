@@ -76,7 +76,7 @@ namespace MetadataChanger
                 }
             }
 
-            var match = Regex.Match(html, "srcset=\"(.+?) 1x,").Groups[1].Value;
+            var match = Regex.Match(html, "270w,(.+?) 300w,").Groups[1].Value;
 
             return match;
         }

@@ -48,7 +48,7 @@ namespace YouTubeSimplify
                 {
                     txtFFmpegPath.Text = ofd.FileName;
 
-                    Settings.Default.FolderPath = txtFFmpegPath.Text;
+                    Settings.Default.FFmpegPath = txtFFmpegPath.Text;
                     Settings.Default.Save();
                 }
             }
@@ -68,9 +68,6 @@ namespace YouTubeSimplify
             Settings.Default.NotifyConverted = chkNotifyConverted.Checked;
 
             Settings.Default.Save();
-
-            // Re-set the decryption function regex
-            YouTube.Default.SetDecryptionRegex(Settings.Default.DecryptionFunctionRegex);
 
             Close();
         }

@@ -44,25 +44,16 @@ namespace YouTubeSimplify
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            // Set the youtube address decryption regex function
-            var exception = YouTube.Default.SetDecryptionRegex(Settings.Default.DecryptionFunctionRegex);
-
-            if (exception != null)
-            {
-                MessageBox.Show($"YouTube adres de-şifre fonksiyonu düzgün çalışmıyor.\n\nHata Bilgileri: {exception.Message}"
-                    , "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                YouTube.Default.SetDecryptionRegex("");
-            }
-
             Application.Run(new MainForm());
         }
 
         public static void Log(string message)
         {
             string logFile = ".\\log.txt";
-
             if (!File.Exists(logFile))
-                File.Create(logFile);
+            {
+                File.Create(logFile).Dispose();
+            }
 
             string error = message;
             string text = DateTime.Now.ToString() + " => " + error + Environment.NewLine;
