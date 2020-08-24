@@ -1,4 +1,4 @@
-﻿namespace YouTubeSimplify.Forms
+﻿namespace YouTubeSimplify
 {
     partial class AutoDownloadForm
     {

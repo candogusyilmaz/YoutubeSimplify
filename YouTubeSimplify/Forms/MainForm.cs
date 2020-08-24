@@ -1,7 +1,5 @@
 ﻿using FFMpegManager;
-using MetadataChanger;
 using MetadataChanger.Forms;
-using MetadataChanger.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +9,6 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VideoLibrary;
-using YouTubeSimplify.Forms;
 using YouTubeSimplify.Properties;
 
 namespace YouTubeSimplify
@@ -21,7 +18,7 @@ namespace YouTubeSimplify
         #region Private Fields
 
         private IEnumerable<YouTubeVideo> videoInfos;
-        private readonly WebClient _webClient;
+        private readonly WebClient webClient;
         private string savePath;
 
         #endregion
@@ -32,11 +29,9 @@ namespace YouTubeSimplify
         {
             InitializeComponent();
 
-            _webClient = new WebClient
-            {
-                UseDefaultCredentials = true
-            };
-            _webClient.DownloadProgressChanged += DownloadProgressChanged;
+            webClient = new WebClient();
+            webClient.UseDefaultCredentials = true;
+            webClient.DownloadProgressChanged += DownloadProgressChanged;
 
             this.Icon = Properties.Resources.mainIcon;
             ClearControls();
@@ -53,6 +48,7 @@ namespace YouTubeSimplify
             ClipboardMonitor.Instance.ClipboardChanged += ClipboardChanged;
             //Notifier.Instance.Click += Notifier_Click;
         }
+
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -183,13 +179,13 @@ namespace YouTubeSimplify
 
         private void lblCancel_Click(object sender, EventArgs e)
         {
-            if (!_webClient.IsBusy) return;
+            if (!webClient.IsBusy) return;
 
             var dResult = MessageBox.Show($"{videoInfos.FirstOrDefault().FullName} indirmesi iptal edilsin mi?", "İndirme İptal", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (dResult == DialogResult.Yes)
             {
-                _webClient.CancelAsync();
+                webClient.CancelAsync();
 
                 if (File.Exists(savePath))
                     File.Delete(savePath);
@@ -210,7 +206,7 @@ namespace YouTubeSimplify
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
-                await _webClient.DownloadFileTaskAsync(video.Uri, savePath);
+                await webClient.DownloadFileTaskAsync(video.Uri, savePath);
 
                 //Notify.FileDownloaded(video.FullName);
 
@@ -351,8 +347,6 @@ namespace YouTubeSimplify
             btnFolderPath.Enabled = false;
 
             btnDownload.Enabled = false;
-
-            btnAutoDownload.Enabled = false;
         }
 
         private void ClearControls()
@@ -379,62 +373,8 @@ namespace YouTubeSimplify
             btnDownload.Enabled = true;
             lblCancel.Enabled = false;
             lblCancel.Visible = false;
-
-            btnAutoDownload.Enabled = true;
-            btnAutoDownload.Text = "Otomatik İndirme";
         }
 
         #endregion
-
-        private async void btnAutoDownload_Click(object sender, EventArgs e)
-        {
-            var downloadQueue = new Queue<AutoDownloadModel>();
-
-            using (var form = new AutoDownloadForm())
-            {
-                form.ShowDialog();
-                downloadQueue = form.VideoURLs;
-            }
-
-            int totalCount = downloadQueue.Count;
-
-            while (downloadQueue.Count > 0)
-            {
-                DisableControls();
-
-                var model = downloadQueue.Dequeue();
-                btnAutoDownload.Text = $"Otomatik İndirme {totalCount - downloadQueue.Count}/{totalCount}";
-                await Auto_GetVideoInfo(model);
-
-                ClearControls();
-            }
-        }
-
-        private async Task Auto_GetVideoInfo(AutoDownloadModel model)
-        {
-            var videoInfo = await model.URL.GetVideoInfo();
-            PopulateVideoTypes(videoInfo.GetVideoTypes());
-
-            txtYouTubeURL.Text = model.URL;
-            this.Text = videoInfo.First().Title;
-
-            var video = videoInfo.SelectVideo(cmbType.Text, cmbResolution.Text, cmbAudioBitrate.Text);
-            this.videoInfos = videoInfo;
-            var downloadedFileInfo = await DownloadVideo(video, txtSaveFolder.Text);
-
-            if (downloadedFileInfo == null) return;
-
-            var mp3File = await ConsiderConvertingToMp3(cmbType.Text, downloadedFileInfo);
-            Notify.FileConverted(downloadedFileInfo.FullName);
-
-            if (model.Keyword != null)
-            {
-                var songToFind = (await ITunesAPI.Find(model.Keyword)).FirstOrDefault();
-
-                if (songToFind == null) return;
-
-                await Metadata.Change(mp3File.FullName, songToFind);
-            }
-        }
     }
 }

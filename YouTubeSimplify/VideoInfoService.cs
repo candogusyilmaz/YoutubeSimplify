@@ -11,12 +11,15 @@ namespace YouTubeSimplify
         {
             try
             {
-                var videos = await YouTube.Default.GetAllVideosAsync(URL);
+                using (var client = Client.For(YouTube.Default))
+                {
+                    var videos = await client.GetAllVideosAsync(URL);
 
-                if (videos.FirstOrDefault() != null)
-                    return videos;
-                else
-                    return null;
+                    if (videos.FirstOrDefault() != null)
+                        return videos;
+                    else
+                        return null;
+                }
             }
             catch { return null; }
         }

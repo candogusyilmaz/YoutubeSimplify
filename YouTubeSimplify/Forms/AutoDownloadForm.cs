@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace YouTubeSimplify.Forms
+namespace YouTubeSimplify
 {
     public partial class AutoDownloadForm : Form
     {

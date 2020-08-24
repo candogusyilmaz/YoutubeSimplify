@@ -50,7 +50,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.btnDownload = new System.Windows.Forms.Button();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.btnAutoDownload = new System.Windows.Forms.Label();
             this.lblCancel = new System.Windows.Forms.Label();
             this.splitterBottom = new System.Windows.Forms.Splitter();
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
@@ -300,7 +299,6 @@
             // pnlBottom
             // 
             this.pnlBottom.BackColor = System.Drawing.Color.LightGray;
-            this.pnlBottom.Controls.Add(this.btnAutoDownload);
             this.pnlBottom.Controls.Add(this.lblCancel);
             this.pnlBottom.Controls.Add(this.splitterBottom);
             this.pnlBottom.Controls.Add(this.btnDownload);
@@ -310,17 +308,6 @@
             this.pnlBottom.Name = "pnlBottom";
             this.pnlBottom.Size = new System.Drawing.Size(444, 51);
             this.pnlBottom.TabIndex = 1;
-            // 
-            // btnAutoDownload
-            // 
-            this.btnAutoDownload.AutoSize = true;
-            this.btnAutoDownload.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAutoDownload.Location = new System.Drawing.Point(12, 19);
-            this.btnAutoDownload.Name = "btnAutoDownload";
-            this.btnAutoDownload.Size = new System.Drawing.Size(89, 13);
-            this.btnAutoDownload.TabIndex = 4;
-            this.btnAutoDownload.Text = "Otomatik İndirme";
-            this.btnAutoDownload.Click += new System.EventHandler(this.btnAutoDownload_Click);
             // 
             // lblCancel
             // 
@@ -435,6 +422,5 @@
         private System.Windows.Forms.MenuStrip mainMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem btnSettings;
         private System.Windows.Forms.ToolStripMenuItem btnChangeAlbum;
-        private System.Windows.Forms.Label btnAutoDownload;
     }
 }
