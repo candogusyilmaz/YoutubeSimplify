@@ -172,6 +172,7 @@
             this.label1.Size = new System.Drawing.Size(187, 13);
             this.label1.TabIndex = 7;
             this.label1.Text = "YouTube adres de-şifre fonksiyonu :";
+            this.label1.Visible = false;
             // 
             // txtYouTubeDecryptionFunctionRegex
             // 
@@ -181,6 +182,7 @@
             this.txtYouTubeDecryptionFunctionRegex.ReadOnly = true;
             this.txtYouTubeDecryptionFunctionRegex.Size = new System.Drawing.Size(341, 21);
             this.txtYouTubeDecryptionFunctionRegex.TabIndex = 6;
+            this.txtYouTubeDecryptionFunctionRegex.Visible = false;
             this.txtYouTubeDecryptionFunctionRegex.DoubleClick += new System.EventHandler(this.txtYouTubeDecryptionFunctionRegex_DoubleClick);
             this.txtYouTubeDecryptionFunctionRegex.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtYouTubeDecryptionFunctionRegex_KeyPress);
             // 

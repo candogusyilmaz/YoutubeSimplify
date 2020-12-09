@@ -25,7 +25,8 @@ namespace MetadataChanger
 
             audioFile = TagLib.File.Create(filePath);
 
-            audioFile.Tag.Pictures = await GetArtwork(await GetArtworkUrl(song.CollectionViewUrl));
+            //audioFile.Tag.Pictures = await GetArtwork(await GetArtworkUrl(song.ArtworkUrl100));
+            audioFile.Tag.Pictures = await GetArtwork(song.ArtworkUrl100);
             audioFile.Tag.Album = song.CollectionName;
             audioFile.Tag.Performers = new[] { song.ArtistName };
             audioFile.Tag.Genres = new[] { song.PrimaryGenreName };
