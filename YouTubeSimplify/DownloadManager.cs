@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace YouTubeSimplify
 {
@@ -10,6 +11,8 @@ namespace YouTubeSimplify
         private string _address;
         private FileInfo _fileInfo;
         private DirectoryInfo _directory;
+
+        private FileInfo _downloadedFileInfo = null;
 
         private WebClient _webClient;
 
@@ -30,7 +33,12 @@ namespace YouTubeSimplify
             _address = address;
         }
 
-        public async void StartAsync()
+        public FileInfo GetDownloadedFileInfo()
+        {
+            return _downloadedFileInfo;
+        }
+
+        public async Task StartAsync()
         {
             _webClient = new WebClient()
             {
@@ -39,9 +47,25 @@ namespace YouTubeSimplify
 
             _webClient.DownloadFileCompleted += _webClient_DownloadFileCompleted;
             _webClient.DownloadProgressChanged += _webClient_DownloadProgressChanged;
+            try
+            {
+                await _webClient.DownloadFileTaskAsync(_address, _fileInfo.FullName);
+            }
+            catch (WebException ex) when (ex.Status == WebExceptionStatus.RequestCanceled)
+            {
 
-            await _webClient.DownloadFileTaskAsync(_address, _fileInfo.FullName);
+            }
         }
+
+        public void CancelAsync()
+        {
+            if (_webClient.IsBusy)
+                _webClient.CancelAsync();
+        }
+
+        #endregion
+
+        #region Private
 
         private int progress = 0;
         private void _webClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
@@ -55,25 +79,21 @@ namespace YouTubeSimplify
             DownloadProgressChanged?.Invoke(null, e);
         }
 
-        public void CancelAsync()
-        {
-            if (_webClient.IsBusy)
-                _webClient.CancelAsync();
-        }
-
-        #endregion
-
-        #region Private
-
         private void _webClient_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
+            _fileInfo.Refresh();
+
             if (_fileInfo.Exists)
             {
                 if (e.Cancelled)
+                {
                     _fileInfo.Delete();
+                    _downloadedFileInfo = null;
+                }
                 else
                 {
                     // Are we gonna do something after completion?
+                    _downloadedFileInfo = _fileInfo;
                 }
             }
 
@@ -104,6 +124,7 @@ namespace YouTubeSimplify
 
         private void Dispose()
         {
+            progress = 0;
             _address = null;
             _fileInfo = null;
             _directory = null;

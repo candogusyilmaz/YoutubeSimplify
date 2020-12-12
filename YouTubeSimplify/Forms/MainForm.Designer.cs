@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.grpMain = new System.Windows.Forms.GroupBox();
+            this.lblPercentage = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -55,7 +56,6 @@
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
             this.btnSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnChangeAlbum = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblPercentage = new System.Windows.Forms.Label();
             this.grpMain.SuspendLayout();
             this.pnlTextBox.SuspendLayout();
             this.VideoURLTextBoxPanel.SuspendLayout();
@@ -89,6 +89,14 @@
             this.grpMain.Size = new System.Drawing.Size(416, 219);
             this.grpMain.TabIndex = 0;
             this.grpMain.TabStop = false;
+            // 
+            // lblPercentage
+            // 
+            this.lblPercentage.Location = new System.Drawing.Point(345, 164);
+            this.lblPercentage.Name = "lblPercentage";
+            this.lblPercentage.Size = new System.Drawing.Size(58, 13);
+            this.lblPercentage.TabIndex = 21;
+            this.lblPercentage.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // label8
             // 
@@ -362,14 +370,6 @@
             this.btnChangeAlbum.Size = new System.Drawing.Size(98, 19);
             this.btnChangeAlbum.Text = "Albüm Değiştir";
             this.btnChangeAlbum.Click += new System.EventHandler(this.btnChangeAlbum_Click);
-            // 
-            // lblPercentage
-            // 
-            this.lblPercentage.Location = new System.Drawing.Point(345, 164);
-            this.lblPercentage.Name = "lblPercentage";
-            this.lblPercentage.Size = new System.Drawing.Size(58, 13);
-            this.lblPercentage.TabIndex = 21;
-            this.lblPercentage.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // MainForm
             // 
