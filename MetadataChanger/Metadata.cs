@@ -1,20 +1,14 @@
-﻿using MetadataChanger.Models;
-using System;
+﻿using HtmlAgilityPack;
+using MetadataChanger.Models;
 using System.IO;
+using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MetadataChanger
 {
     public class Metadata
     {
-        /// <summary>
-        /// Changes the metadata with the iTunes information
-        /// </summary>
-        /// <param name="filePath">Local .mp3 file path.</param>
-        /// <param name="song">iTunes song information</param>
-        /// <returns>If successful returns true else false.</returns>
         public static async Task<bool> Change(string filePath, ITunesSong song)
         {
             var audioFile = TagLib.File.Create(filePath);
@@ -25,8 +19,7 @@ namespace MetadataChanger
 
             audioFile = TagLib.File.Create(filePath);
 
-            //audioFile.Tag.Pictures = await GetArtwork(await GetArtworkUrl(song.ArtworkUrl100));
-            audioFile.Tag.Pictures = await GetArtwork(song.ArtworkUrl100);
+            audioFile.Tag.Pictures = await GetArtwork(await GetArtworkUrl(song.CollectionViewUrl));
             audioFile.Tag.Album = song.CollectionName;
             audioFile.Tag.Performers = new[] { song.ArtistName };
             audioFile.Tag.Genres = new[] { song.PrimaryGenreName };
@@ -60,11 +53,6 @@ namespace MetadataChanger
             File.Move(filePath, newFilePath);
         }
 
-        /// <summary>
-        /// Gets the artwork url from the album page
-        /// </summary>
-        /// <param name="url">Album url</param>
-        /// <returns>Artwork/Image url</returns>
         private static async Task<string> GetArtworkUrl(string url)
         {
             var html = string.Empty;
@@ -77,15 +65,16 @@ namespace MetadataChanger
                 }
             }
 
-            var match = Regex.Match(html, "270w,(.+?) 300w,").Groups[1].Value;
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
 
-            return match;
+            var imageURL = doc.DocumentNode.Descendants("meta")
+                .FirstOrDefault(s => s.GetAttributeValue("name", null) == "twitter:image")
+                .Attributes[1].Value;
+
+            return imageURL;
         }
 
-        /// <summary>
-        /// Downloads the given artwork and turns it into a IPicture array.
-        /// </summary>
-        /// <param name="artworkUrl">ITunes artwork url.</param>
         private static async Task<TagLib.IPicture[]> GetArtwork(string artworkUrl)
         {
             TagLib.Id3v2.AttachedPictureFrame pic = new TagLib.Id3v2.AttachedPictureFrame

@@ -173,6 +173,7 @@
     <Compile Include="ClipboardMonitor.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="DownloadManager.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Forms\AutoDownloadForm.cs">
       <SubType>Form</SubType>

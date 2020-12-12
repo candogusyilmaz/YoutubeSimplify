@@ -30,6 +30,7 @@ namespace MetadataChanger.Forms
         {
             BringWindowToTop();
             txtKeyword.Focus();
+            searchTimer.Enabled = true;
         }
 
         private void BringWindowToTop()
@@ -42,38 +43,43 @@ namespace MetadataChanger.Forms
             this.TopMost = top;
         }
 
-        private async void txtKeyword_TextChanged(object sender, EventArgs e)
+        private async void btnChange_Click(object sender, EventArgs e)
+        {
+            btnChange.Enabled = false;
+
+            try
+            {
+                await Metadata.Change(filePath, song);
+                Close();
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show(ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                btnChange.Enabled = true;
+            }
+        }
+
+        private async void searchTimer_Tick(object sender, EventArgs e)
         {
             string flagWord = txtKeyword.Text.Trim();
 
-            // Return if; length is lower than 3 or length isn't divisible by 2
-            if (flagWord.Length < 3 || flagWord.Replace(" ","").Length % 2 != 1)
+            if (flagWord.Replace(" ", "").Length < 3 || flagWord.Replace(" ","") == keyword.Replace(" ",""))
                 return;
-
-            lblSongName.ResetText();
 
             keyword = Regex.Replace(txtKeyword.Text, @"\s+", " ");
 
-            var list = await ITunesAPI.Find(keyword);
+            song = (await ITunesAPI.Find(keyword)).FirstOrDefault();
 
-            if (list.Count < 1)
-                return;
-
-            song = list.First();
-            lblSongName.Text = $"1. {song.ArtistName} - {song.TrackName}";
-        }
-
-        private async void btnChange_Click(object sender, EventArgs e)
-        {
-            DisableControls();
-            await Metadata.Change(filePath, song);
-            Close();
-        }
-
-        private void DisableControls()
-        {
-            txtKeyword.Enabled = false;
-            btnChange.Enabled = false;
+            if (song == null)
+            {
+                lblSongName.ResetText();
+                btnChange.Enabled = false;
+            }
+            else
+            {
+                lblSongName.Text = $"1. {song.ArtistName} - {song.TrackName}";
+                btnChange.Enabled = true;
+            }
         }
     }
 }

@@ -55,6 +55,7 @@
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
             this.btnSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnChangeAlbum = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblPercentage = new System.Windows.Forms.Label();
             this.grpMain.SuspendLayout();
             this.pnlTextBox.SuspendLayout();
             this.VideoURLTextBoxPanel.SuspendLayout();
@@ -64,6 +65,7 @@
             // 
             // grpMain
             // 
+            this.grpMain.Controls.Add(this.lblPercentage);
             this.grpMain.Controls.Add(this.label8);
             this.grpMain.Controls.Add(this.label7);
             this.grpMain.Controls.Add(this.label6);
@@ -361,6 +363,14 @@
             this.btnChangeAlbum.Text = "Albüm Değiştir";
             this.btnChangeAlbum.Click += new System.EventHandler(this.btnChangeAlbum_Click);
             // 
+            // lblPercentage
+            // 
+            this.lblPercentage.Location = new System.Drawing.Point(345, 164);
+            this.lblPercentage.Name = "lblPercentage";
+            this.lblPercentage.Size = new System.Drawing.Size(58, 13);
+            this.lblPercentage.TabIndex = 21;
+            this.lblPercentage.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -422,5 +432,6 @@
         private System.Windows.Forms.MenuStrip mainMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem btnSettings;
         private System.Windows.Forms.ToolStripMenuItem btnChangeAlbum;
+        private System.Windows.Forms.Label lblPercentage;
     }
 }

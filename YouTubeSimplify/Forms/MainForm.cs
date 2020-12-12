@@ -18,7 +18,7 @@ namespace YouTubeSimplify
         #region Private Fields
 
         private IEnumerable<YouTubeVideo> videoInfos;
-        private readonly WebClient webClient;
+        private readonly WebClient wClient;
         private string savePath;
 
         #endregion
@@ -29,11 +29,40 @@ namespace YouTubeSimplify
         {
             InitializeComponent();
 
-            webClient = new WebClient();
-            webClient.UseDefaultCredentials = true;
-            webClient.DownloadProgressChanged += DownloadProgressChanged;
+            wClient = new WebClient();
+            wClient.UseDefaultCredentials = true;
+            wClient.DownloadProgressChanged += wClient_DownloadProgressChanged;
+            wClient.DownloadFileCompleted += wClient_DownloadFileCompleted;
 
             this.Icon = Properties.Resources.mainIcon;
+            ClearControls();
+
+        }
+
+        private async void wClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+            {
+                if (File.Exists(savePath))
+                    File.Delete(savePath);
+            }
+            else
+            {
+                if (downloadedFileInfo == null)
+                {
+                    ClearControls();
+                    return;
+                }
+
+                var mp3File = await ConsiderConvertingToMp3(cmbType.Text, downloadedFileInfo);
+
+                if (Settings.Default.ChangeAlbumInfoAfterDownload && mp3File != null)
+                    using (var form = new SearchForm(mp3File.FullName, Resources.mainIcon))
+                        form.ShowDialog();
+
+                Notify.FileConverted(video.Title);
+            }
+
             ClearControls();
         }
 
@@ -75,7 +104,7 @@ namespace YouTubeSimplify
 
         private void ClipboardChanged(object sender, EventArgs e)
         {
-            if (!Helpers.IsClipboardTextYoutubeURL())
+            if (wClient.IsBusy || !Helpers.IsClipboardTextYoutubeURL())
                 return;
 
             txtYouTubeURL.Text = Clipboard.GetText();
@@ -84,7 +113,7 @@ namespace YouTubeSimplify
                 Helpers.BringWindowToTop(this);
 
             if (Settings.Default.GetInformationAuto)
-                btnGetVideoInfo_Click(this, e);
+                btnGetVideoInfo_Click(null, new EventArgs());
         }
 
         #endregion
@@ -151,46 +180,29 @@ namespace YouTubeSimplify
             }
         }
 
+        YouTubeVideo video;
+        FileInfo downloadedFileInfo;
+
         private async void btnDownload_Click(object sender, EventArgs e)
         {
             if (videoInfos == null) return;
 
             DisableControls();
 
-            var video = videoInfos.SelectVideo(cmbType.Text, cmbResolution.Text, cmbAudioBitrate.Text);
-            var downloadedFileInfo = await DownloadVideo(video, txtSaveFolder.Text);
+            video = videoInfos.SelectVideo(cmbType.Text, cmbResolution.Text, cmbAudioBitrate.Text);
+            downloadedFileInfo = await DownloadVideo(video, txtSaveFolder.Text);
 
-            if (downloadedFileInfo == null)
-            {
-                ClearControls();
-                return;
-            }
-
-            var mp3File = await ConsiderConvertingToMp3(cmbType.Text, downloadedFileInfo);
-
-            if (Settings.Default.ChangeAlbumInfoAfterDownload && mp3File != null)
-                using (var form = new SearchForm(mp3File.FullName, Resources.mainIcon))
-                    form.ShowDialog();
-
-            Notify.FileConverted(video.Title);
-
-            ClearControls();
         }
 
         private void lblCancel_Click(object sender, EventArgs e)
         {
-            if (!webClient.IsBusy) return;
+            if (!wClient.IsBusy) return;
 
             var dResult = MessageBox.Show($"{videoInfos.FirstOrDefault().FullName} indirmesi iptal edilsin mi?", "İndirme İptal", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (dResult == DialogResult.Yes)
             {
-                webClient.CancelAsync();
-
-                if (File.Exists(savePath))
-                    File.Delete(savePath);
-
-                ClearControls();
+                wClient.CancelAsync();
             }
         }
 
@@ -198,19 +210,15 @@ namespace YouTubeSimplify
 
         private async Task<FileInfo> DownloadVideo(YouTubeVideo video, string path)
         {
+            string nameWithExtension = video.FullName.RemoveInvalidChars();
+            savePath = Path.Combine(path, nameWithExtension);
+
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
             try
             {
-                string nameWithExtension = video.FullName.RemoveInvalidChars();
-                savePath = Path.Combine(path, nameWithExtension);
-
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
-                await webClient.DownloadFileTaskAsync(video.Uri, savePath);
-
-                //Notify.FileDownloaded(video.FullName);
-
-                return new FileInfo(savePath);
+                await wClient.DownloadFileTaskAsync(new Uri(video.Uri), savePath);
             }
             catch (WebException exception)
             {
@@ -222,23 +230,29 @@ namespace YouTubeSimplify
                 Program.Log(exception.Message);
                 return null;
             }
+
+            //Notify.FileDownloaded(video.FullName);
+
+            return new FileInfo(savePath);
         }
 
-        private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        private void wClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            // When this method gets called too many times UI gets blocked
+            if ((e.ProgressPercentage - pbDownloadProgress.Value) < 1)
+                return;
+
             pbDownloadProgress.Value = e.ProgressPercentage;
-            this.Text = $"{videoInfos.FirstOrDefault().Title} - {e.ProgressPercentage}%";
+            lblPercentage.Text = $"{e.ProgressPercentage.ToString()}%";
         }
 
         private async Task<FileInfo> ConsiderConvertingToMp3(string fileExtension, FileInfo file)
         {
-            // If file extension isn't mp3 and there isn't an mp4 file return null
             if (fileExtension != ".mp3")
                 return null;
 
             string fileNameAsMp3 = file.FullName.Replace(".mp4", ".mp3");
 
-            // If there is already a file called "fileNameAsMp3" then ask the user what to do
             if (File.Exists(fileNameAsMp3))
             {
                 var dResult = MessageBox.Show("Dönüştürülmek üzere olan dosya isminde başka bir dosya bulunuyor. Üzerine yazılsın mı?"
@@ -255,16 +269,13 @@ namespace YouTubeSimplify
                 }
             }
 
-            // Notify user about the convert progress
             pbDownloadProgress.Style = ProgressBarStyle.Marquee;
             lblDownloading.Text = "Dönüştürülüyor:";
 
             var ffmpeg = new FFMpeg(Settings.Default.FFmpegPath);
 
-            // Start converting
             await ffmpeg.ExtractAudioAsync(file, fileNameAsMp3);
 
-            // Delete the .mp4 file
             file.Delete();
 
             ffmpeg.Dispose();
@@ -367,6 +378,7 @@ namespace YouTubeSimplify
             btnFolderPath.Enabled = true;
 
             lblDownloading.Text = "İndiriliyor:";
+            lblPercentage.ResetText();
             pbDownloadProgress.Value = 0;
             pbDownloadProgress.Style = ProgressBarStyle.Blocks;
 

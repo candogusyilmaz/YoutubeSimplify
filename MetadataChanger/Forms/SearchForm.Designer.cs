@@ -28,10 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.lblSongName = new System.Windows.Forms.Label();
             this.txtKeyword = new System.Windows.Forms.TextBox();
             this.btnChange = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.searchTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // lblSongName
@@ -49,10 +51,10 @@
             this.txtKeyword.Name = "txtKeyword";
             this.txtKeyword.Size = new System.Drawing.Size(295, 21);
             this.txtKeyword.TabIndex = 1;
-            this.txtKeyword.TextChanged += new System.EventHandler(this.txtKeyword_TextChanged);
             // 
             // btnChange
             // 
+            this.btnChange.Enabled = false;
             this.btnChange.Location = new System.Drawing.Point(232, 62);
             this.btnChange.Name = "btnChange";
             this.btnChange.Size = new System.Drawing.Size(75, 23);
@@ -69,6 +71,11 @@
             this.label1.Size = new System.Drawing.Size(88, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "Anahtar sözcük :";
+            // 
+            // searchTimer
+            // 
+            this.searchTimer.Interval = 1798;
+            this.searchTimer.Tick += new System.EventHandler(this.searchTimer_Tick);
             // 
             // SearchForm
             // 
@@ -99,5 +106,6 @@
         private System.Windows.Forms.TextBox txtKeyword;
         private System.Windows.Forms.Button btnChange;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Timer searchTimer;
     }
 }
