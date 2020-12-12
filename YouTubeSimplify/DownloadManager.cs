@@ -30,6 +30,7 @@ namespace YouTubeSimplify
         {
             SetDirectory(fileSaveLocation);
             SetFileInfo(fileName);
+
             _address = address;
         }
 
@@ -47,6 +48,7 @@ namespace YouTubeSimplify
 
             _webClient.DownloadFileCompleted += _webClient_DownloadFileCompleted;
             _webClient.DownloadProgressChanged += _webClient_DownloadProgressChanged;
+
             try
             {
                 await _webClient.DownloadFileTaskAsync(_address, _fileInfo.FullName);
