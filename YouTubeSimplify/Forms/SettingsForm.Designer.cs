@@ -182,6 +182,7 @@
             this.txtYouTubeDecryptionFunctionRegex.ReadOnly = true;
             this.txtYouTubeDecryptionFunctionRegex.Size = new System.Drawing.Size(341, 21);
             this.txtYouTubeDecryptionFunctionRegex.TabIndex = 6;
+            this.txtYouTubeDecryptionFunctionRegex.Text = "Currently deactivated";
             this.txtYouTubeDecryptionFunctionRegex.Visible = false;
             this.txtYouTubeDecryptionFunctionRegex.DoubleClick += new System.EventHandler(this.txtYouTubeDecryptionFunctionRegex_DoubleClick);
             this.txtYouTubeDecryptionFunctionRegex.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtYouTubeDecryptionFunctionRegex_KeyPress);

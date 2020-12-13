@@ -28,6 +28,7 @@ namespace YouTubeSimplify
 
         public void SetDownloadParameters(string fileName, string address, string fileSaveLocation)
         {
+            // have to be called before setfileinfo
             SetDirectory(fileSaveLocation);
             SetFileInfo(fileName);
 
@@ -132,6 +133,7 @@ namespace YouTubeSimplify
             _directory = null;
             _webClient.Dispose();
         }
+
         #endregion
     }
 }

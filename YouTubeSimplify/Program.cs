@@ -48,13 +48,14 @@ namespace YouTubeSimplify
         public static void Log(string message)
         {
             string logFile = ".\\log.txt";
+
             if (!File.Exists(logFile))
             {
                 File.Create(logFile).Dispose();
             }
 
             string error = message;
-            string text = DateTime.Now.ToString() + " => " + error + Environment.NewLine;
+            string text = $"{DateTime.Now.ToString()} => {error} {Environment.NewLine}";
             string lines = File.ReadAllText(logFile);
 
             File.WriteAllText(logFile, text + lines);
